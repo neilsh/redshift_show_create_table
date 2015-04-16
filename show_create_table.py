@@ -186,11 +186,12 @@ def build_view_stmts_for_schema(cur, schema):
     '''
     cur.execute(sql, {'schema': schema})
     for v in cur.fetchall():
-        view_name = v[0]
+        view_without_schema = v[0]
         owner = v[1]
         base_statement = v[2]
-        s = format_comment(view_name, schema, owner, tablespace='', model_type='VIEW')
-        s += 'CREATE OR REPLACE VIEW %s AS' % get_table_name(schema, view_name)
+        view_name = get_table_name(schema, view_without_schema)
+        s = format_comment(view_without_schema, schema, owner, tablespace='', model_type='VIEW')
+        s += 'CREATE OR REPLACE VIEW %s AS' % view_name
         s += '\n' + base_statement + '\n'
         yield schema, view_name, s
 
