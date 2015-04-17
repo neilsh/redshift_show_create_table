@@ -177,6 +177,13 @@ def build_table_stmts(table_defs, table_diststyles, table_infos):
         yield schemaname, table, s
 
 
+# TODO: make using sqlparse.format() optional
+# Also, determine why sqlparse.format() doesn't seem to work with CREATE TABLE statements
+def format_sql(base_statement):
+    import sqlparse
+    return sqlparse.format(base_statement, reindent=True, indent_tabs=False)
+
+
 def build_view_stmts_for_schema(cur, schema):
     sql = '''
     SELECT c.relname, pg_get_userbyid(c.relowner) AS owner, pg_get_viewdef(c.oid) AS definition
@@ -192,7 +199,7 @@ def build_view_stmts_for_schema(cur, schema):
         view_name = get_table_name(schema, view_without_schema)
         s = format_comment(view_without_schema, schema, owner, tablespace='', model_type='VIEW')
         s += 'CREATE OR REPLACE VIEW %s AS' % view_name
-        s += '\n' + base_statement + '\n'
+        s += '\n' + format_sql(base_statement) + '\n'
         yield schema, view_name, s
 
 
